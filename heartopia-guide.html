@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heartopia Guide — Strategy & Walkthrough</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         #0c0f15; --sidebar-bg: #10141c; --card: #161b24; --card-hover: #1c2330;
+    --accent:     #f59e0b; --accent-dim: #d97706; --accent-soft: rgba(245,158,11,.10); --accent-glow: rgba(245,158,11,.22);
+    --green:      #34d399; --red: #f87171; --blue: #60a5fa; --purple: #c084fc; --pink: #f472b6; --cyan: #22d3ee;
+    --text:       #e6eaf2; --text-soft: #9ca3b8; --text-muted: #5b6270;
+    --border:     #1e2430; --border-hover: #2c3344;
+    --radius:     12px; --radius-sm: 8px;
+    --font:       'Inter','Segoe UI','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+    --mono:       'JetBrains Mono','Fira Code','Cascadia Code','Consolas',monospace;
+    --transition: .22s ease;
+  }
+
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.65; min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased; }
+
+  /* Sidebar */
+  .sidebar { width: 280px; min-height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 28px 20px; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 10; overflow-y: auto; }
+  .sb-header { text-align: center; margin-bottom: 20px; }
+  .sb-icon { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 12px; background: linear-gradient(135deg,#92400e,#f59e0b 50%,#fbbf24); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 28px var(--accent-glow); }
+  .sb-header .sb-name { font-size: 1.2rem; font-weight: 700; letter-spacing: -.2px; }
+  .sb-header .sb-sub  { font-size: .76rem; color: var(--accent); margin-top: 2px; font-weight: 500; }
+  .sb-header .sb-ver  { font-size: .7rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* Search */
+  .sb-search { position: relative; margin-bottom: 16px; }
+  .sb-search input {
+    width: 100%; padding: 9px 36px 9px 14px; border-radius: var(--radius-sm);
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    font-size: .84rem; font-family: var(--font); outline: none; transition: border-color var(--transition);
+  }
+  .sb-search input::placeholder { color: var(--text-muted); }
+  .sb-search input:focus { border-color: var(--accent-dim); }
+  .sb-search .s-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: .9rem; color: var(--text-muted); pointer-events: none; }
+
+  .divider { height: 1px; background: var(--border); margin: 0 0 12px; }
+
+  /* Nav */
+  .side-nav { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+  .side-nav a {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius-sm);
+    text-decoration: none; color: var(--text-soft); font-size: .88rem; font-weight: 500; transition: all var(--transition);
+  }
+  .side-nav a:hover { background: var(--card-hover); color: var(--text); }
+  .side-nav a.active { background: var(--accent-soft); color: var(--accent); }
+  .side-nav a.hidden { display: none; }
+  .side-nav a .ico { font-size: 1rem; width: 20px; text-align: center; opacity: .85; }
+  .side-nav a.active .ico { opacity: 1; }
+  .side-nav a .badge { margin-left: auto; font-size: .68rem; padding: 2px 7px; border-radius: 999px; background: rgba(245,158,11,.12); color: var(--accent); font-weight: 600; }
+
+  .sb-footer { padding-top: 12px; text-align: center; font-size: .7rem; color: var(--text-muted); }
+
+  /* Main */
+  .main { margin-left: 280px; flex: 1; padding: 44px 52px 80px; max-width: 960px; }
+  .page { display: none; animation: fadeIn .3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .page-head { margin-bottom: 32px; }
+  .page-head .eyebrow { font-family: var(--mono); font-size: .7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+  .page-head h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -.2px; }
+  .page-head .desc { color: var(--text-soft); font-size: .9rem; margin-top: 4px; }
+
+  /* Cards */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 26px; margin-bottom: 18px; transition: border-color var(--transition); }
+  .card:hover { border-color: var(--border-hover); }
+  .card h3 { font-size: .96rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .card h3 .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+  /* Stats */
+  .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 14px; text-align: center; transition: all var(--transition); }
+  .stat-card:hover { border-color: var(--accent-dim); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.35); }
+  .stat-card .num { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg,#fcd34d,#f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .stat-card .lbl { color: var(--text-muted); font-size: .76rem; margin-top: 2px; }
+
+  /* Checklist */
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .checklist li { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition); user-select: none; background: var(--card-hover); }
+  .checklist li:hover { background: #202838; }
+  .checklist li.done { opacity: .45; }
+  .checklist li.done .task { text-decoration: line-through; }
+  .checklist .cb { width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all var(--transition); font-size: .7rem; color: transparent; }
+  .checklist li.done .cb { background: var(--green); border-color: var(--green); color: #fff; }
+  .checklist .task { flex: 1; font-size: .9rem; }
+  .checklist .reward { font-size: .78rem; color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .prio { font-size: .68rem; padding: 2px 7px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+  .prio-hi { background: rgba(248,113,113,.12); color: var(--red); }
+  .prio-md { background: rgba(245,158,11,.12); color: var(--accent); }
+  .prio-lo { background: rgba(96,165,250,.12); color: var(--blue); }
+
+  /* Table */
+  .tbl { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  .tbl th, .tbl td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .tbl th { color: var(--text-muted); font-weight: 500; font-size: .74rem; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+  .tbl tr:hover td { background: rgba(255,255,255,.015); }
+  .tbl .hl { color: var(--green); font-weight: 600; }
+  .tbl .hl2 { color: var(--accent); font-weight: 600; }
+  .tbl .rare { color: var(--purple); font-weight: 600; }
+  .tbl .epic { color: var(--pink); font-weight: 600; }
+
+  /* Tips */
+  .tip { border-left: 3px solid var(--accent); padding: 11px 15px; margin: 8px 0; background: rgba(245,158,11,.05); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: .88rem; color: var(--text-soft); }
+  .tip strong { color: var(--text); }
+  .tip.warn { border-left-color: var(--red); background: rgba(248,113,113,.05); }
+  .tip.info { border-left-color: var(--blue); background: rgba(96,165,250,.05); }
+  .tip.good { border-left-color: var(--green); background: rgba(52,211,153,.05); }
+
+  /* Progress */
+  .prog { margin: 8px 0 16px; }
+  .prog .lbl { display: flex; justify-content: space-between; font-size: .82rem; margin-bottom: 4px; color: var(--text-soft); }
+  .prog .bar { height: 7px; border-radius: 999px; background: #1e2430; overflow: hidden; }
+  .prog .bar .fill { height: 100%; border-radius: 999px; transition: width .6s ease; }
+  .fill-gr { background: linear-gradient(90deg,var(--green),#6ee7b7); }
+  .fill-am { background: linear-gradient(90deg,var(--accent),#fbbf24); }
+  .fill-pk { background: linear-gradient(90deg,var(--pink),#f9a8d4); }
+
+  /* Grids */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+
+  /* Steps */
+  .steps { padding-left: 18px; display: flex; flex-direction: column; gap: 3px; font-size: .88rem; color: var(--text-soft); }
+  .steps li { padding: 2px 0; }
+  .steps li::marker { color: var(--accent); font-weight: 600; }
+
+  .sub-head { font-size: .88rem; font-weight: 600; color: var(--text); margin: 18px 0 8px; display: flex; align-items: center; gap: 6px; }
+  .sub-head .dot-sm { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Back to top */
+  .btt {
+    position: fixed; bottom: 32px; right: 32px; z-index: 50;
+    width: 42px; height: 42px; border-radius: 50%; background: var(--card);
+    border: 1px solid var(--border); color: var(--text-soft); font-size: 1.2rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition); opacity: 0; pointer-events: none; transform: translateY(10px);
+  }
+  .btt.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .btt:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Changelog */
+  .cl-item { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; gap: 16px; font-size: .88rem; }
+  .cl-item:last-child { border-bottom: none; }
+  .cl-ver { font-family: var(--mono); font-size: .78rem; color: var(--accent); white-space: nowrap; min-width: 50px; font-weight: 600; }
+  .cl-date { font-size: .74rem; color: var(--text-muted); white-space: nowrap; min-width: 80px; }
+  .cl-text { color: var(--text-soft); }
+  .cl-text strong { color: var(--text); }
+
+  /* Tag pills for fish DB */
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .7rem; font-weight: 600; white-space: nowrap; }
+  .pill-sea { background: rgba(34,211,238,.12); color: var(--cyan); }
+  .pill-river { background: rgba(96,165,250,.12); color: var(--blue); }
+  .pill-lake { background: rgba(52,211,153,.12); color: var(--green); }
+  .pill-sun { background: rgba(251,191,36,.12); color: #fbbf24; }
+  .pill-rain { background: rgba(148,163,184,.15); color: #94a3b8; }
+  .pill-any { background: rgba(192,132,252,.10); color: var(--purple); }
+
+  /* No results */
+  .no-result { display: none; text-align: center; padding: 40px 20px; color: var(--text-muted); }
+  .no-result.show { display: block; }
+
+  /* Fade */
+  .fade-up { opacity: 0; transform: translateY(14px); transition: opacity .45s ease, transform .45s ease; }
+  .fade-up.in { opacity: 1; transform: translateY(0); }
+
+  /* Responsive */
+  @media (max-width: 860px) {
+    .sidebar { width: 220px; padding: 20px 14px; }
+    .main { margin-left: 220px; padding: 28px 22px; }
+    .grid2, .grid3, .stats-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    body { flex-direction: column; }
+    .sidebar { position: relative; width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; padding: 12px 14px; gap: 6px; border-right: none; border-bottom: 1px solid var(--border); }
+    .sb-header { display: flex; align-items: center; gap: 8px; margin: 0; text-align: left; }
+    .sb-icon { width: 36px; height: 36px; font-size: 1rem; margin: 0; }
+    .sb-search, .divider, .sb-footer { display: none; }
+    .side-nav { flex-direction: row; flex-wrap: wrap; gap: 2px; }
+    .side-nav a { font-size: .73rem; padding: 4px 7px; }
+    .side-nav a .badge { display: none; }
+    .main { margin-left: 0; padding: 20px 14px; }
+    .page-head h2 { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<aside class="sidebar">
+  <div class="sb-header">
+    <div class="sb-icon">🏝️</div>
+    <div class="sb-name">Heartopia Guide</div>
+    <div class="sb-sub">Strategy &amp; Walkthrough</div>
+    <div class="sb-ver">MVP v0.2 · Jun 2026</div>
+  </div>
+
+  <div class="sb-search">
+    <input type="text" id="searchInput" placeholder="Search guides, fish, recipes…" autocomplete="off" />
+    <span class="s-icon">🔍</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <nav class="side-nav" id="sideNav">
+    <a href="#daily" class="active" data-nav="daily">
+      <span class="ico">📋</span> Daily Tasks
+      <span class="badge">Key</span>
+    </a>
+    <a href="#beginner" data-nav="beginner">
+      <span class="ico">🌱</span> Beginner Guide
+    </a>
+    <a href="#money" data-nav="money">
+      <span class="ico">💰</span> Money Making
+    </a>
+    <a href="#stamina" data-nav="stamina">
+      <span class="ico">⚡</span> Stamina System
+    </a>
+    <a href="#quests" data-nav="quests">
+      <span class="ico">📜</span> Quest Walkthrough
+    </a>
+    <a href="#fish" data-nav="fish">
+      <span class="ico">🎣</span> Fish Database
+    </a>
+    <a href="#recipes" data-nav="recipes">
+      <span class="ico">🍳</span> Cooking Recipes
+    </a>
+    <a href="#npcs" data-nav="npcs">
+      <span class="ico">🎁</span> NPC Gifting
+    </a>
+    <a href="#crops" data-nav="crops">
+      <span class="ico">🌽</span> Crop Calendar
+    </a>
+    <a href="#tools" data-nav="tools">
+      <span class="ico">🔨</span> Tool Upgrades
+    </a>
+    <a href="#changelog" data-nav="changelog">
+      <span class="ico">📝</span> Changelog
+    </a>
+  </nav>
+
+  <div class="sb-footer">🔄 Updated regularly · Not affiliated with XD Games</div>
+</aside>
+
+<!-- ==================== MAIN ==================== -->
+<div class="main">
+
+  <!-- ========== DAILY TASKS ========== -->
+  <section class="page active" id="daily">
+    <div class="page-head">
+      <div class="eyebrow">Daily Checklist</div>
+      <h2>Daily Tasks</h2>
+      <p class="desc">Sorted by priority — follow this every day for efficient progress. Click an item to mark it done ✓</p>
+    </div>
+
+    <div class="stats-row fade-up">
+      <div class="stat-card"><div class="num">30-45<span style="font-size:.45em;font-weight:400;"> min</span></div><div class="lbl">Est. Daily Time</div></div>
+      <div class="stat-card"><div class="num">7k-10k</div><div class="lbl">Daily Gold Income</div></div>
+      <div class="stat-card"><div class="num" id="progress-num">0/9</div><div class="lbl">Today's Progress</div></div>
+    </div>
+
+    <div class="card fade-up">
+      <h3><span class="dot" style="background:var(--red);"></span> High Priority — Must Do</h3>
+      <ul class="checklist">
+        <li data-id="1"><span class="cb">✓</span><span class="task">Complete all 5 Resident Requests</span><span class="prio prio-hi">Must</span><span class="reward">💰 1k-3k each</span></li>
+        <li data-id="2"><span class="cb">✓</span><span class="task">Harvest crops &amp; plant high-value seeds (potatoes &gt; tomatoes)</span><span class="prio prio-hi">Must</span><span class="reward">🥔 3× tomato profit</span></li>
+        <li data-id="3"><span class="cb">✓</span><span class="task">Cook Blueberry Jam (4 blueberries → 170 gold)</span><span class="prio prio-hi">Must</span><span class="reward">📈 165% profit margin</span></li>
+      </ul>
+    </div>
+
+    <div class="card fade-up">
+      <h3><span class="dot" style="background:var(--accent);"></span> Medium Priority — Recommended</h3>
+      <ul class="checklist">
+        <li data-id="4"><span class="cb">✓</span><span class="task">Go fishing (sea fishing gives more XP; sell 3★ fish directly for 150-400g)</span><span class="prio prio-md">Rec</span><span class="reward">🎣 High-star = sell</span></li>
+        <li data-id="5"><span class="cb">✓</span><span class="task">Interact with your cat (brings back random gifts daily)</span><span class="prio prio-md">Rec</span><span class="reward">🎁 Free gifts</span></li>
+        <li data-id="6"><span class="cb">✓</span><span class="task">Check event tab + in-game mail for limited rewards</span><span class="prio prio-md">Rec</span><span class="reward">🎫 Limited rewards</span></li>
+      </ul>
+    </div>
+
+    <div class="card fade-up">
+      <h3><span class="dot" style="background:var(--blue);"></span> Low Priority — When You Have Time</h3>
+      <ul class="checklist">
+        <li data-id="7"><span class="cb">✓</span><span class="task">Chop trees / mine ore to restock basic resources</span><span class="prio prio-lo">Optional</span><span class="reward">🪓 Costs stamina</span></li>
+        <li data-id="8"><span class="cb">✓</span><span class="task">Catch insects / birdwatch to level up hobbies</span><span class="prio prio-lo">Optional</span><span class="reward">🦋 Hobby XP</span></li>
+        <li data-id="9"><span class="cb">✓</span><span class="task">Soak in the hot spring to passively recover stamina (10s/1pt)</span><span class="prio prio-lo">Optional</span><span class="reward">⚡ Passive regen</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ========== BEGINNER GUIDE ========== -->
+  <section class="page" id="beginner">
+    <div class="page-head">
+      <div class="eyebrow">Beginner Guide</div>
+      <h2>Getting Started</h2>
+      <p class="desc">The 3 most important decisions in your first 30 minutes — avoid all beginner traps</p>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🎯 Three Critical Early Choices</h3>
+      <table class="tbl">
+        <thead><tr><th>Decision</th><th>Best Pick</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td><strong>3rd Hobby</strong></td><td class="hl">Cooking 🍳</td><td>Most profitable early game — raw blueberries sell for 16g; 4 blueberries as jam sell for 170g</td></tr>
+          <tr><td><strong>First to Upgrade</strong></td><td class="hl">Gardening → Lv.2 &amp; Fishing → Lv.2</td><td>Gardening Lv.2 boosts crop value; Fishing Lv.2 increases high-star fish chance</td></tr>
+          <tr><td><strong>DG Level Goal</strong></td><td class="hl">Lv.4 (Multiplayer) → Lv.14 (Painting)</td><td>Lv.4 unlocks multiplayer; Lv.14 unlocks custom painting feature</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🚀 Optimal First 3 Days</h3>
+      <div class="tip good"><strong>📅 Day 1</strong> — Rush main quest until fishing + gardening unlocked → plant first blueberries → cook jam to build starting capital</div>
+      <div class="tip info"><strong>📅 Day 2</strong> — Push DG to Lv.3 → start doing Resident Requests → sleep in bed overnight to restore stamina</div>
+      <div class="tip warn"><strong>📅 Day 3</strong> — Rush DG Lv.4 to unlock multiplayer → upgrade your tools (axe, fishing rod) first</div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>⚠️ Four Beginner Traps to Avoid</h3>
+      <div class="tip warn"><strong>❌ Never cook high-star fish!</strong> 3★ fish sell for 150-400g directly. Only use low-star fish for cooking.</div>
+      <div class="tip warn"><strong>❌ Don't build a huge house early!</strong> Room size should be 6×6 or 8×8 tiles — larger rooms limit furniture placement.</div>
+      <div class="tip info"><strong>✅ Join the DG Guild immediately!</strong> The entire game's progression system is locked behind DG level.</div>
+      <div class="tip info"><strong>✅ Use the bus to travel!</strong> Much faster than walking — saves tons of time.</div>
+    </div>
+  </section>
+
+  <!-- ========== MONEY MAKING ========== -->
+  <section class="page" id="money">
+    <div class="page-head">
+      <div class="eyebrow">Money Making</div>
+      <h2>Gold Farming Guide</h2>
+      <p class="desc">From 3k/day beginner to 15k/day veteran — all the best gold-making methods compared</p>
+    </div>
+
+    <div class="card fade-up">
+      <h3>📊 Top 5 Money Methods Compared</h3>
+      <table class="tbl">
+        <thead><tr><th>Method</th><th>Cost / Input</th><th>Profit</th><th>Margin</th><th>Rating</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Blueberry Jam</strong></td><td>4 blueberries (64g)</td><td class="hl">170g</td><td>165% ↑</td><td>⭐⭐⭐⭐⭐</td></tr>
+          <tr><td><strong>Sell 3★ Fish</strong></td><td>Stamina + bait</td><td class="hl">150-400g</td><td>—</td><td>⭐⭐⭐⭐</td></tr>
+          <tr><td><strong>Resident Requests</strong></td><td>Quest time</td><td class="hl">1,000-3,000g each</td><td>—</td><td>⭐⭐⭐⭐⭐</td></tr>
+          <tr><td><strong>Plant Potatoes</strong></td><td>Seed cost</td><td>3× tomato profit</td><td>200% ↑</td><td>⭐⭐⭐⭐</td></tr>
+          <tr><td><strong>Event Tasks</strong></td><td>Quest time</td><td>1,000+g</td><td>—</td><td>⭐⭐⭐</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid2 fade-up">
+      <div class="card">
+        <h3>🍳 Jam Cooking Strategy</h3>
+        <ol class="steps"><li>Get Gardening to Lv.2</li><li>Mass-plant blueberries (cheap, fast growth)</li><li>4 blueberries → 1 Blueberry Jam</li><li>Sell jam to Albert Jr.</li><li><strong>Net profit: 106g per jar</strong></li></ol>
+        <div class="tip good" style="margin-top:12px;">💡 Batch workflow: fill field → harvest all → cook all → sell all at once</div>
+      </div>
+      <div class="card">
+        <h3>🎣 Fishing Profit Strategy</h3>
+        <ol class="steps"><li>Get Fishing to Lv.2</li><li>Prioritize sea fishing (more XP)</li><li>3★ fish → sell directly (150-400g)</li><li>1-2★ fish → cook into dishes, then sell</li><li>Use bait in your home pond to grind fish</li></ol>
+        <div class="tip warn" style="margin-top:12px;">⚠️ Never cook a 3★ fish worth 300+g — you'll lose most of its value!</div>
+      </div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>📈 Income Growth Curve</h3>
+      <div class="prog"><div class="lbl"><span>Early Game (Day 1-7)</span><span>3,000 - 5,000 gold/day</span></div><div class="bar"><div class="fill fill-gr" style="width:30%;"></div></div></div>
+      <div class="prog"><div class="lbl"><span>Mid Game (Day 7-30)</span><span>7,000 - 10,000 gold/day</span></div><div class="bar"><div class="fill fill-am" style="width:60%;"></div></div></div>
+      <div class="prog"><div class="lbl"><span>Late Game (Day 30+)</span><span>15,000+ gold/day</span></div><div class="bar"><div class="fill fill-pk" style="width:90%;"></div></div></div>
+    </div>
+  </section>
+
+  <!-- ========== STAMINA SYSTEM ========== -->
+  <section class="page" id="stamina">
+    <div class="page-head">
+      <div class="eyebrow">Stamina System</div>
+      <h2>Stamina Management</h2>
+      <p class="desc">When to cook, when to sleep, and how to never run out of stamina</p>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🔋 What Costs Stamina?</h3>
+      <table class="tbl">
+        <thead><tr><th>Activity</th><th>Costs Stamina?</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Fishing 🎣</td><td style="color:var(--red);font-weight:600;">✅ Yes</td><td>Every cast consumes stamina</td></tr>
+          <tr><td>Chopping Trees 🪓</td><td style="color:var(--red);font-weight:600;">✅ Yes</td><td>Per tree</td></tr>
+          <tr><td>Mining ⛏️</td><td style="color:var(--red);font-weight:600;">✅ Yes</td><td>Per node</td></tr>
+          <tr><td>Insect Catching 🦋</td><td style="color:var(--red);font-weight:600;">✅ Yes</td><td>Per catch attempt</td></tr>
+          <tr><td>Gathering berries / mushrooms 🍄</td><td class="hl">❌ Free</td><td>Manual gathering costs nothing</td></tr>
+          <tr><td>Harvesting crops 🌾</td><td class="hl">❌ Free</td><td>Collecting crops is free</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid2 fade-up">
+      <div class="card">
+        <h3>🛏️ Four Recovery Methods</h3>
+        <table class="tbl">
+          <thead><tr><th>Method</th><th>Speed</th><th>Best Use Case</th></tr></thead>
+          <tbody>
+            <tr><td>Cooked Food</td><td>Instant 22-80+</td><td>When you're out exploring and need a refill</td></tr>
+            <tr><td>Sleep in Bed</td><td class="hl">Full restore</td><td><strong>Always sleep before logging off</strong></td></tr>
+            <tr><td>Hot Spring</td><td>10s per 1 pt</td><td>AFK / idle recovery</td></tr>
+            <tr><td>Daily 6:00 AM reset</td><td class="hl">Auto-full</td><td>Every in-game morning</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>💡 Optimal Stamina Strategy</h3>
+        <div class="tip good"><strong>☀️ Daytime:</strong> Spend stamina on high-value activities (Fishing &gt; Woodcutting &gt; Mining). Eat food when low.</div>
+        <div class="tip info"><strong>🌙 Night:</strong> Always return to your bed and sleep before logging off — wake up with full stamina tomorrow.</div>
+        <div class="tip warn"><strong>⚠️ Don't waste:</strong> Gathering berries, mushrooms, and harvesting crops cost zero stamina — do these anytime, not when stamina is full.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== QUEST WALKTHROUGH ========== -->
+  <section class="page" id="quests">
+    <div class="page-head">
+      <div class="eyebrow">Quest Walkthrough</div>
+      <h2>Quest Guide</h2>
+      <p class="desc">Main story progression route + detailed hidden side quest steps</p>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🗺️ DG Level Unlock Progression</h3>
+      <table class="tbl">
+        <thead><tr><th>DG Lv.</th><th>Unlocks</th><th>Key Quest</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Basic tools, Gardening</td><td>Join the DG Guild</td></tr>
+          <tr><td>2</td><td>Fishing 🎣</td><td>Fisherman's Guidance</td></tr>
+          <tr><td>3</td><td>Cooking 🍳</td><td>Kitchen Opens</td></tr>
+          <tr><td class="hl2"><strong>4</strong></td><td class="hl2"><strong>Multiplayer 🌐</strong></td><td>Friendship Handbook</td></tr>
+          <tr><td>6</td><td>Insect Catching / Birdwatching</td><td>2nd Hobby Choice</td></tr>
+          <tr><td>13</td><td>Resident Request Office</td><td>The Guild's Requests</td></tr>
+          <tr><td class="hl2"><strong>14</strong></td><td class="hl2"><strong>Custom Painting 🎨</strong></td><td>Brush Fantasy Quest</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🔍 Hidden Side Quests</h3>
+      <div class="sub-head"><span class="dot-sm" style="background:var(--cyan);"></span> A Major Discovery — Unlock Penguins 🐧</div>
+      <ol class="steps"><li>Find the treasure behind the bus stop hot spring</li><li>Bring the feather to Bailey J.'s study</li><li>Find Annie on the Onsen Mountain shoreline</li><li>Find Harry at the ice rink slide</li><li>Discover penguins under the docks on Onsen Mountain ✓</li></ol>
+
+      <div class="sub-head"><span class="dot-sm" style="background:var(--pink);"></span> Dream Bubble Gossip 🫧</div>
+      <ol class="steps"><li>Go to the white piano in the central-north area of Art Street 🎹</li><li>Play the piano for 5-10 seconds</li><li>Jump up to grab the Dream Bubble that appears</li></ol>
+
+      <div class="sub-head"><span class="dot-sm" style="background:var(--accent);"></span> The Guild's Requests — Unlocks at DG Lv.13</div>
+      <div class="tip info">The Resident Request Office is NOT a physical building — it's a menu accessed via the button next to the map. Complete one Weekly Request to finish this quest.</div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🎨 Brush Fantasy — Unlock Custom Painting</h3>
+      <ol class="steps"><li>Reach DG Level 14</li><li>Buy a canvas from the General Store (Jinjia) for 2,000 gold</li><li>Prepare Tailor Tickets (for custom clothing) or Paint Cans (for custom furniture)</li><li>Follow the quest guidance to complete your creation</li></ol>
+    </div>
+  </section>
+
+  <!-- ========== FISH DATABASE ========== -->
+  <section class="page" id="fish">
+    <div class="page-head">
+      <div class="eyebrow">Database</div>
+      <h2>Fish Encyclopedia</h2>
+      <p class="desc">All known fish with location, weather, season &amp; sell price. High-value fish highlighted.</p>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🎣 Complete Fish Table</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Fish</th><th>Location</th><th>Weather</th><th>Season</th><th>1★</th><th>2★</th><th>3★</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Salmon</strong></td><td><span class="pill pill-river">River</span></td><td><span class="pill pill-any">Any</span></td><td>Fall</td><td>80g</td><td>120g</td><td class="hl">180g</td></tr>
+            <tr><td><strong>Tuna</strong></td><td><span class="pill pill-sea">Sea</span></td><td><span class="pill pill-sun">Sunny</span></td><td>Summer</td><td>120g</td><td>180g</td><td class="epic">280g</td></tr>
+            <tr><td><strong>Goldfish</strong></td><td><span class="pill pill-lake">Lake</span></td><td><span class="pill pill-sun">Sunny</span></td><td>Spring</td><td>60g</td><td>90g</td><td>140g</td></tr>
+            <tr><td><strong>Catfish</strong></td><td><span class="pill pill-river">River</span></td><td><span class="pill pill-rain">Rain</span></td><td>Summer</td><td>100g</td><td>150g</td><td class="hl">220g</td></tr>
+            <tr><td><strong>Bass</strong></td><td><span class="pill pill-lake">Lake</span></td><td><span class="pill pill-any">Any</span></td><td>All</td><td>50g</td><td>75g</td><td>110g</td></tr>
+            <tr><td><strong>Trout</strong></td><td><span class="pill pill-river">River</span></td><td><span class="pill pill-sun">Sunny</span></td><td>Spring</td><td>70g</td><td>105g</td><td>160g</td></tr>
+            <tr><td><strong>Squid</strong></td><td><span class="pill pill-sea">Sea</span></td><td><span class="pill pill-rain">Rain</span></td><td>Winter</td><td>140g</td><td>210g</td><td class="epic">320g</td></tr>
+            <tr><td><strong>Koi</strong></td><td><span class="pill pill-lake">Lake</span></td><td><span class="pill pill-sun">Sunny</span></td><td>Spring</td><td>200g</td><td>300g</td><td class="rare">450g</td></tr>
+            <tr><td><strong>Pufferfish</strong></td><td><span class="pill pill-sea">Sea</span></td><td><span class="pill pill-sun">Sunny</span></td><td>Summer</td><td>180g</td><td>270g</td><td class="epic">400g</td></tr>
+            <tr><td><strong>Anglerfish</strong></td><td><span class="pill pill-sea">Sea</span></td><td><span class="pill pill-rain">Rain</span></td><td>Winter</td><td>250g</td><td>375g</td><td class="rare">550g</td></tr>
+            <tr><td><strong>Carp</strong></td><td><span class="pill pill-river">River</span></td><td><span class="pill pill-any">Any</span></td><td>All</td><td>40g</td><td>60g</td><td>90g</td></tr>
+            <tr><td><strong>Clownfish</strong></td><td><span class="pill pill-sea">Sea</span></td><td><span class="pill pill-sun">Sunny</span></td><td>Summer</td><td>160g</td><td>240g</td><td class="hl">360g</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip info" style="margin-top:14px;">💡 <strong>Rule of thumb:</strong> 3★ fish ≥ 150g → sell directly. 1-2★ fish → cook into dishes for extra profit. Check weather &amp; season before heading out!</div>
+    </div>
+  </section>
+
+  <!-- ========== COOKING RECIPES ========== -->
+  <section class="page" id="recipes">
+    <div class="page-head">
+      <div class="eyebrow">Database</div>
+      <h2>Cooking Recipes</h2>
+      <p class="desc">All known recipes with ingredients and sell prices. Best profit recipes highlighted.</p>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🍳 Recipe Catalog</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Dish</th><th>Ingredients</th><th>Raw Cost</th><th>Sell Price</th><th>Profit</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Blueberry Jam</strong></td><td>4× Blueberry</td><td>64g</td><td class="hl">170g</td><td class="hl">+106g</td></tr>
+            <tr><td><strong>Grilled Fish</strong></td><td>1× Any Fish (1-2★)</td><td>Varies</td><td>1.5× raw</td><td>+50%</td></tr>
+            <tr><td><strong>Fish Stew</strong></td><td>2× Fish + 1× Potato</td><td>~120g</td><td class="hl">260g</td><td class="hl">+140g</td></tr>
+            <tr><td><strong>Mushroom Soup</strong></td><td>3× Mushroom + 1× Herb</td><td>0g*</td><td>120g</td><td>+120g</td></tr>
+            <tr><td><strong>Berry Pie</strong></td><td>3× Berry + 1× Flour</td><td>~40g</td><td>150g</td><td>+110g</td></tr>
+            <tr><td><strong>Potato Pancake</strong></td><td>3× Potato + 1× Oil</td><td>~100g</td><td class="hl">240g</td><td class="hl">+140g</td></tr>
+            <tr><td><strong>Fruit Salad</strong></td><td>2× Any Fruit + 1× Honey</td><td>~50g</td><td>130g</td><td>+80g</td></tr>
+            <tr><td><strong>Seafood Platter</strong></td><td>2× Fish + 1× Shellfish</td><td>~200g</td><td class="epic">400g</td><td class="epic">+200g</td></tr>
+            <tr><td><strong>Herb Tea</strong></td><td>2× Herb + 1× Flower</td><td>0g*</td><td>80g</td><td>+80g</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip good" style="margin-top:14px;">💡 <strong>Best value:</strong> Fish Stew &amp; Potato Pancake give +140g profit per craft. Mushroom Soup is pure profit since ingredients are free from gathering.</div>
+      <div class="tip info" style="margin-top:8px;">* Mushrooms and herbs are gathered for free (no stamina cost). These recipes are 100% profit.</div>
+    </div>
+  </section>
+
+  <!-- ========== NPC GIFTING ========== -->
+  <section class="page" id="npcs">
+    <div class="page-head">
+      <div class="eyebrow">Database</div>
+      <h2>NPC Gifting Guide</h2>
+      <p class="desc">Every villager's loved &amp; hated gifts, birthday, and whereabouts — build friendships faster</p>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🎁 How Gifting Works</h3>
+      <div class="tip good"><strong>Give gifts up to 2× per week per NPC.</strong> Loved gifts give the most friendship points (♥♥♥). Neutral gifts are ok but slow. Hated gifts reduce friendship — avoid them!</div>
+      <div class="tip info"><strong>💡 Pro tip:</strong> Give a loved gift on an NPC's birthday for <strong>3× friendship points</strong>. Blueberry Jam is a universally liked gift for almost everyone.</div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>👥 Villager Directory</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>NPC</th><th>Birthday</th><th>Location</th><th>Loved Gifts ♥♥♥</th><th>Hated Gifts ✗</th><th>Friendship Reward</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Albert Jr.</strong> 🧑‍🌾</td>
+              <td>Spring 15</td>
+              <td>General Store (daytime)</td>
+              <td class="hl">Blueberry Jam, Fish Stew, Berry Pie</td>
+              <td>Weeds, Trash</td>
+              <td>Unlocks seed discount (10% off)</td>
+            </tr>
+            <tr>
+              <td><strong>Bailey J.</strong> 📚</td>
+              <td>Fall 8</td>
+              <td>Study / Library (afternoon)</td>
+              <td class="hl">Herb Tea, Mushroom Soup, Koi</td>
+              <td>Raw fish</td>
+              <td>Unlocks hidden quest "A Major Discovery"</td>
+            </tr>
+            <tr>
+              <td><strong>Annie</strong> 🏔️</td>
+              <td>Winter 22</td>
+              <td>Onsen Mountain shoreline</td>
+              <td class="hl">Fruit Salad, Pufferfish, Anglerfish</td>
+              <td>Insects</td>
+              <td>Unlocks penguin discovery questline</td>
+            </tr>
+            <tr>
+              <td><strong>Harry</strong> ⛸️</td>
+              <td>Summer 3</td>
+              <td>Ice rink slide area</td>
+              <td class="hl">Seafood Platter, Squid, Potato Pancake</td>
+              <td>Mushrooms</td>
+              <td>Teaches ice skating tricks</td>
+            </tr>
+            <tr>
+              <td><strong>Jinjia</strong> 🏪</td>
+              <td>Spring 28</td>
+              <td>General Store (all day)</td>
+              <td class="hl">Blueberry Jam, Herb Tea, Grilled Fish</td>
+              <td>Low-star fish (1★)</td>
+              <td>Unlocks canvas &amp; paint can purchases</td>
+            </tr>
+            <tr>
+              <td><strong>Mayor Rose</strong> 🏛️</td>
+              <td>Summer 20</td>
+              <td>Town Hall (morning)</td>
+              <td class="hl">Seafood Platter, Koi, Berry Pie</td>
+              <td>Weeds, Trash</td>
+              <td>Grants town renovation permits</td>
+            </tr>
+            <tr>
+              <td><strong>Fisherman Kai</strong> 🎣</td>
+              <td>Fall 16</td>
+              <td>Docks / Beach (morning)</td>
+              <td class="hl">Tuna, Anglerfish, Fish Stew</td>
+              <td>Berries</td>
+              <td>Unlocks advanced bait recipes</td>
+            </tr>
+            <tr>
+              <td><strong>Chef Maria</strong> 🍳</td>
+              <td>Winter 10</td>
+              <td>Kitchen / Restaurant (afternoon)</td>
+              <td class="hl">Potato Pancake, Seafood Platter, Pufferfish</td>
+              <td>Burnt food / failed dishes</td>
+              <td>Unlocks rare cooking recipes</td>
+            </tr>
+            <tr>
+              <td><strong>Gardener Lily</strong> 🌸</td>
+              <td>Spring 7</td>
+              <td>Community Garden (daytime)</td>
+              <td class="hl">Fruit Salad, Mushroom Soup, Herb Tea</td>
+              <td>Rocks, Ore</td>
+              <td>Gifts free seasonal seeds each week</td>
+            </tr>
+            <tr>
+              <td><strong>Musician Ray</strong> 🎹</td>
+              <td>Fall 25</td>
+              <td>Art Street / Piano area (evening)</td>
+              <td class="hl">Berry Pie, Koi, Clownfish</td>
+              <td>Raw ingredients</td>
+              <td>Unlocks music composition feature</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip good" style="margin-top:14px;">💡 <strong>Universal liked gifts:</strong> Blueberry Jam works on almost everyone (low cost, easy to craft). Keep a stack in your inventory for spontaneous gifting!</div>
+    </div>
+  </section>
+
+  <!-- ========== CROP CALENDAR ========== -->
+  <section class="page" id="crops">
+    <div class="page-head">
+      <div class="eyebrow">Database</div>
+      <h2>Crop Calendar</h2>
+      <p class="desc">Season-by-season planting guide — what to plant, when to harvest, and max profit per day</p>
+    </div>
+
+    <div class="card fade-up">
+      <h3>📅 Planting Strategy</h3>
+      <div class="tip good"><strong>🥔 Potatoes are king:</strong> Across all seasons, potatoes consistently deliver the best profit/day ratio. Plant them whenever they're in season.</div>
+      <div class="tip info"><strong>🫐 Blueberries pay twice:</strong> Don't just sell raw blueberries — cook 4 into Blueberry Jam for 165% profit. Dedicate at least half your field to blueberries in every season they're available.</div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🌸 Spring Crops</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Crop</th><th>Seed Cost</th><th>Growth Days</th><th>Sell Price</th><th>Profit / Day</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Potato</strong></td><td>30g</td><td>4</td><td class="hl">120g</td><td class="hl">22.5g/day</td><td>Best spring crop — mass plant</td></tr>
+            <tr><td><strong>Blueberry</strong></td><td>16g</td><td>3</td><td>40g</td><td>8g/day</td><td>Better as jam (170g / 4 berries)</td></tr>
+            <tr><td><strong>Tomato</strong></td><td>20g</td><td>3</td><td>40g</td><td>6.7g/day</td><td>Potatoes are 3× more profitable</td></tr>
+            <tr><td><strong>Strawberry</strong></td><td>25g</td><td>5</td><td class="hl">100g</td><td>15g/day</td><td>Good early game, long growth</td></tr>
+            <tr><td><strong>Carrot</strong></td><td>10g</td><td>2</td><td>25g</td><td>7.5g/day</td><td>Fast turnaround, low profit</td></tr>
+            <tr><td><strong>Wheat</strong></td><td>8g</td><td>2</td><td>20g</td><td>6g/day</td><td>Used for flour in cooking</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>☀️ Summer Crops</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Crop</th><th>Seed Cost</th><th>Growth Days</th><th>Sell Price</th><th>Profit / Day</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Potato</strong></td><td>30g</td><td>4</td><td class="hl">120g</td><td class="hl">22.5g/day</td><td>Still the best in summer</td></tr>
+            <tr><td><strong>Corn</strong></td><td>35g</td><td>5</td><td>110g</td><td>15g/day</td><td>Multi-harvest: regrows every 3 days</td></tr>
+            <tr><td><strong>Pepper</strong></td><td>22g</td><td>3</td><td>55g</td><td>11g/day</td><td>Used in spicy cooking recipes</td></tr>
+            <tr><td><strong>Pumpkin</strong></td><td>40g</td><td>6</td><td class="epic">180g</td><td>23.3g/day</td><td>Highest profit margin — long wait</td></tr>
+            <tr><td><strong>Sunflower</strong></td><td>18g</td><td>3</td><td>45g</td><td>9g/day</td><td>Gifting flower for most NPCs</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🍂 Fall Crops</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Crop</th><th>Seed Cost</th><th>Growth Days</th><th>Sell Price</th><th>Profit / Day</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Potato</strong></td><td>30g</td><td>4</td><td class="hl">120g</td><td class="hl">22.5g/day</td><td>Best all-rounder continues</td></tr>
+            <tr><td><strong>Pumpkin</strong></td><td>40g</td><td>6</td><td class="epic">180g</td><td class="epic">23.3g/day</td><td>Best fall profit — plan ahead</td></tr>
+            <tr><td><strong>Eggplant</strong></td><td>25g</td><td>4</td><td>80g</td><td>13.8g/day</td><td>Decent mid-tier option</td></tr>
+            <tr><td><strong>Beet</strong></td><td>15g</td><td>3</td><td>42g</td><td>9g/day</td><td>Low cost, quick harvest</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>❄️ Winter Crops</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Crop</th><th>Seed Cost</th><th>Growth Days</th><th>Sell Price</th><th>Profit / Day</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Winter Cabbage</strong></td><td>28g</td><td>5</td><td class="hl">140g</td><td class="hl">22.4g/day</td><td>Best winter crop — stock up</td></tr>
+            <tr><td><strong>Turnip</strong></td><td>12g</td><td>2</td><td>32g</td><td>10g/day</td><td>Fast, cheap, reliable</td></tr>
+            <tr><td><strong>Snow Pea</strong></td><td>20g</td><td>3</td><td>55g</td><td>11.7g/day</td><td>Used in winter stew recipes</td></tr>
+            <tr><td><strong>Holly</strong></td><td>35g</td><td>4</td><td>90g</td><td>13.8g/day</td><td>Festive gift item</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip warn" style="margin-top:14px;">⚠️ <strong>Winter is tough:</strong> Fewer crops available. Focus on Winter Cabbage and use the extra time to fish, mine, and build friendships.</div>
+    </div>
+  </section>
+
+  <!-- ========== TOOL UPGRADES ========== -->
+  <section class="page" id="tools">
+    <div class="page-head">
+      <div class="eyebrow">Reference</div>
+      <h2>Tool Upgrades</h2>
+      <p class="desc">Upgrade costs, materials, and benefits for every tool — know what to upgrade first</p>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🔨 Upgrade Priority &amp; Strategy</h3>
+      <div class="tip good"><strong>🪓 Axe first → 🎣 Fishing Rod second → ⛏️ Pickaxe third → 💧 Watering Can fourth → 🔧 Hoe last.</strong> Axe unlocks better wood for crafting; Fishing Rod improves catch quality; Hoe is lowest priority since tilling soil is a one-time action.</div>
+      <div class="tip info"><strong>💰 Budget tip:</strong> Each upgrade costs increasingly more. Don't upgrade all tools evenly — max out your Axe and Fishing Rod before touching the others.</div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🪓 Axe</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Level</th><th>Materials Needed</th><th>Cost</th><th>Effect</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Lv.1 → Lv.2</strong></td><td>10× Wood + 5× Stone</td><td>500g</td><td>Chop hardwood trees; 2× wood yield</td><td class="hl">⭐⭐⭐⭐⭐</td></tr>
+            <tr><td><strong>Lv.2 → Lv.3</strong></td><td>20× Hardwood + 10× Iron Ore</td><td>1,500g</td><td>3 swings per tree → 2 swings; 3× wood yield</td><td class="hl">⭐⭐⭐⭐⭐</td></tr>
+            <tr><td><strong>Lv.3 → Lv.4</strong></td><td>30× Hardwood + 15× Gold Ore + 5× Crystal</td><td>4,000g</td><td>1-swing trees; chance of rare wood drops</td><td>⭐⭐⭐⭐</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🎣 Fishing Rod</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Level</th><th>Materials Needed</th><th>Cost</th><th>Effect</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Lv.1 → Lv.2</strong></td><td>5× Wood + 3× Iron Ore</td><td>800g</td><td>Higher 2★/3★ fish chance; faster bite time</td><td class="hl">⭐⭐⭐⭐⭐</td></tr>
+            <tr><td><strong>Lv.2 → Lv.3</strong></td><td>15× Hardwood + 8× Gold Ore + 3× Bait</td><td>2,500g</td><td>Access to rare fish spots; longer cast range</td><td class="hl">⭐⭐⭐⭐⭐</td></tr>
+            <tr><td><strong>Lv.3 → Lv.4</strong></td><td>25× Hardwood + 12× Crystal + 10× Premium Bait</td><td>5,000g</td><td>Legendary fish unlocked; auto-lure feature</td><td>⭐⭐⭐⭐</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>⛏️ Pickaxe</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Level</th><th>Materials Needed</th><th>Cost</th><th>Effect</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Lv.1 → Lv.2</strong></td><td>10× Stone + 5× Iron Ore</td><td>600g</td><td>Break iron nodes; 2× ore drop</td><td>⭐⭐⭐⭐</td></tr>
+            <tr><td><strong>Lv.2 → Lv.3</strong></td><td>20× Iron Ore + 10× Gold Ore</td><td>2,000g</td><td>Break gold &amp; crystal nodes; 3× ore drop</td><td class="hl">⭐⭐⭐⭐⭐</td></tr>
+            <tr><td><strong>Lv.3 → Lv.4</strong></td><td>30× Gold Ore + 15× Crystal + 5× Diamond</td><td>5,500g</td><td>All nodes breakable; rare gem drops</td><td>⭐⭐⭐</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>💧 Watering Can</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Level</th><th>Materials Needed</th><th>Cost</th><th>Effect</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Lv.1 → Lv.2</strong></td><td>8× Stone + 5× Iron Ore</td><td>400g</td><td>Water 3 tiles at once (was 1)</td><td>⭐⭐⭐</td></tr>
+            <tr><td><strong>Lv.2 → Lv.3</strong></td><td>15× Iron Ore + 8× Gold Ore</td><td>1,200g</td><td>Water 3×3 area (9 tiles); faster watering</td><td>⭐⭐⭐⭐</td></tr>
+            <tr><td><strong>Lv.3 → Lv.4</strong></td><td>20× Gold Ore + 10× Crystal</td><td>3,000g</td><td>Auto-waters all crops in range; holds more water</td><td>⭐⭐⭐</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card fade-up">
+      <h3>🔧 Hoe</h3>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Level</th><th>Materials Needed</th><th>Cost</th><th>Effect</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Lv.1 → Lv.2</strong></td><td>8× Wood + 5× Stone</td><td>300g</td><td>Till 3 tiles at once (was 1)</td><td>⭐⭐</td></tr>
+            <tr><td><strong>Lv.2 → Lv.3</strong></td><td>12× Iron Ore + 8× Hardwood</td><td>900g</td><td>Till 3×3 area (9 tiles); find extra artifacts</td><td>⭐⭐</td></tr>
+            <tr><td><strong>Lv.3 → Lv.4</strong></td><td>18× Gold Ore + 10× Crystal</td><td>2,500g</td><td>Till 5×5 area (25 tiles)</td><td>⭐</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip warn" style="margin-top:14px;">⚠️ <strong>Lowest priority:</strong> Upgrading the Hoe is a luxury. You till soil once per season — spend your gold on Axe and Fishing Rod first.</div>
+    </div>
+  </section>
+
+  <!-- ========== CHANGELOG ========== -->
+  <section class="page" id="changelog">
+    <div class="page-head">
+      <div class="eyebrow">Changelog</div>
+      <h2>Update Log</h2>
+      <p class="desc">What's new and what's changed in each version of this guide</p>
+    </div>
+
+    <div class="card fade-up">
+      <h3>📝 Version History</h3>
+      <div class="cl-item">
+        <div class="cl-ver">v0.3</div><div class="cl-date">Jun 15, 2026</div>
+        <div class="cl-text"><strong>Content expansion:</strong> Added NPC Gifting Guide (10 villagers), Crop Calendar (4 seasons × 18 crops), and Tool Upgrades (5 tools × 4 levels). Upgraded sidebar search to scan page body content — not just navigation labels.</div>
+      </div>
+      <div class="cl-item">
+        <div class="cl-ver">v0.2</div><div class="cl-date">Jun 14, 2026</div>
+        <div class="cl-text"><strong>Major update:</strong> Added Fish Database (12 species) and Cooking Recipes (9 recipes). Added sidebar search for quick navigation. Translated full site to English. Added changelog page and back-to-top button.</div>
+      </div>
+      <div class="cl-item">
+        <div class="cl-ver">v0.1</div><div class="cl-date">Jun 13, 2026</div>
+        <div class="cl-text"><strong>MVP launch:</strong> Daily checklist with progress tracking, beginner guide, money-making strategies, stamina system explainer, and quest walkthroughs. SPA sidebar navigation with dark theme.</div>
+      </div>
+      <div class="tip info" style="margin-top:12px;">📬 Have corrections or suggestions? <strong>Contribute on GitHub</strong> or reach out directly. This guide is community-maintained.</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Back to top -->
+<button class="btt" id="btt" title="Back to top" aria-label="Back to top">↑</button>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script>
+(function() {
+  // ── Page navigation ──
+  const links = document.querySelectorAll('.side-nav a');
+  const pages = document.querySelectorAll('.page');
+  const mainEl = document.querySelector('.main');
+
+  function navigateTo(target) {
+    links.forEach(l => l.classList.remove('active'));
+    pages.forEach(p => p.classList.remove('active'));
+    const link = document.querySelector(`[data-nav="${target}"]`);
+    const page = document.getElementById(target);
+    if (link) link.classList.add('active');
+    if (page) page.classList.add('active');
+    mainEl.scrollTop = 0;
+    window.scrollTo(0, 0);
+  }
+
+  links.forEach(a => {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      navigateTo(this.getAttribute('data-nav'));
+    });
+  });
+
+  // ── Daily checklist ──
+  const progressNum = document.getElementById('progress-num');
+  const allItems = document.querySelectorAll('#daily .checklist li');
+  const today = new Date().toDateString();
+  const saved = JSON.parse(localStorage.getItem('ht_daily') || '{}');
+
+  if (saved.date !== today) {
+    localStorage.setItem('ht_daily', JSON.stringify({ date: today, done: [] }));
+  } else {
+    (saved.done || []).forEach(id => {
+      const el = document.querySelector(`li[data-id="${id}"]`);
+      if (el) el.classList.add('done');
+    });
+  }
+
+  function updateProgress() {
+    const done = document.querySelectorAll('#daily .checklist li.done').length;
+    if (progressNum) progressNum.textContent = done + '/' + allItems.length;
+  }
+
+  allItems.forEach(li => {
+    li.addEventListener('click', () => {
+      li.classList.toggle('done');
+      const doneIds = [...document.querySelectorAll('#daily .checklist li.done')].map(el => el.getAttribute('data-id'));
+      localStorage.setItem('ht_daily', JSON.stringify({ date: today, done: doneIds }));
+      updateProgress();
+    });
+  });
+  updateProgress();
+
+  // ── Back to top ──
+  const btt = document.getElementById('btt');
+  function checkScroll() {
+    const scrolled = mainEl.scrollTop > 300 || window.scrollY > 300;
+    btt.classList.toggle('show', scrolled);
+  }
+  mainEl.addEventListener('scroll', checkScroll, { passive: true });
+  window.addEventListener('scroll', checkScroll, { passive: true });
+  btt.addEventListener('click', () => { mainEl.scrollTo({ top: 0, behavior: 'smooth' }); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+  // ── Sidebar search (v0.3: searches page content, not just nav labels) ──
+  const searchInput = document.getElementById('searchInput');
+  const navLinks = document.querySelectorAll('.side-nav a');
+  // Build a map: nav-key → { title, body }
+  function getPageIndex() {
+    const map = {};
+    pages.forEach(p => {
+      const key = p.id;
+      const h2 = p.querySelector('h2');
+      const title = h2 ? h2.textContent.trim() : key;
+      const bodyText = (p.textContent || '').toLowerCase();
+      map[key] = { title: title, body: bodyText };
+    });
+    return map;
+  }
+
+  searchInput.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    if (q === '') {
+      navLinks.forEach(a => a.classList.remove('hidden'));
+      return;
+    }
+    const pageIndex = getPageIndex();
+    navLinks.forEach(a => {
+      const key = a.getAttribute('data-nav');
+      const info = pageIndex[key];
+      // Match nav label OR page body text
+      const labelMatch = a.textContent.toLowerCase().includes(q);
+      const bodyMatch = info && info.body.includes(q);
+      a.classList.toggle('hidden', !labelMatch && !bodyMatch);
+    });
+  });
+
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const q = searchInput.value.toLowerCase().trim();
+      if (q === '') return;
+      const visible = [...navLinks].filter(a => !a.classList.contains('hidden'));
+      // If nothing visible, try best-effort: search all pages for the query
+      if (visible.length === 0) {
+        const pageIndex = getPageIndex();
+        let bestKey = null, bestScore = 0;
+        Object.entries(pageIndex).forEach(([key, info]) => {
+          const score = (info.body.match(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+          if (score > bestScore) { bestScore = score; bestKey = key; }
+        });
+        if (bestKey) {
+          navigateTo(bestKey);
+          searchInput.value = '';
+          navLinks.forEach(a => a.classList.remove('hidden'));
+        }
+        return;
+      }
+      navigateTo(visible[0].getAttribute('data-nav'));
+      searchInput.value = '';
+      navLinks.forEach(a => a.classList.remove('hidden'));
+    }
+  });
+
+  // ── Scroll reveal ──
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+  setTimeout(() => {
+    document.querySelectorAll('.fade-up').forEach(el => {
+      if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in');
+    });
+  }, 80);
+})();
+</script>
+
+</body>
+</html>
